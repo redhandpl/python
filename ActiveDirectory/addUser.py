@@ -6,7 +6,7 @@ LDAP_SERVER = "ldaps://" + adHost + ":636"
 BIND_DN = bindDN
 BIND_PASS = bindPW
 
-def CreateUser(username, password, baseDN, name, surename, domain):
+def createUser(username, password, baseDN, name, surename, domain):
 
   # LDAP connection
   try:
@@ -19,7 +19,7 @@ def CreateUser(username, password, baseDN, name, surename, domain):
 
   # Check if user exists
   try:
-      user_results = ldapConnection.search_s(baseDN, ldap.SCOPE_SUBTREE,
+      userResults = ldapConnection.search_s(baseDN, ldap.SCOPE_SUBTREE,
                                               '(&(sAMAccountName=' +
                                               username +
                                               ')(objectClass=person))',
@@ -29,12 +29,12 @@ def CreateUser(username, password, baseDN, name, surename, domain):
       return False
 
   # Check the results
-  if len(user_results) != 0:
+  if len(userResults) != 0:
       print "User", username, "already exists in AD:", \
-            user_results[0][1]['distinguishedName'][0]
+            userResults[0][1]['distinguishedName'][0]
       return False
 
-  # Lets build our user: Disabled to start (514)
+  # Build our user
   userDN = 'cn=' + name + ' ' + surename + ',' + baseDN
   userAttrs = {}
   userAttrs['objectClass'] = \
@@ -45,6 +45,7 @@ def CreateUser(username, password, baseDN, name, surename, domain):
   userAttrs['givenName'] = name
   userAttrs['sn'] = surename
   userAttrs['displayName'] = name + ' ' + surename
+  # User will be disabled
   userAttrs['userAccountControl'] = '514'
   userAttrs['mail'] = username + '@' + domain
   userAttrs['pwdLastSet'] = '-1'
@@ -81,7 +82,7 @@ def CreateUser(username, password, baseDN, name, surename, domain):
       return False
 
   # LDAP unbind
-  ldap_connection.unbind_s()
+  ldapConnection.unbind_s()
 
   # All is good
   return True
@@ -93,4 +94,4 @@ name = "Jan"
 surename = "Kowalski"
 domain = "domain.com"
 
-CreateUser(username, password, baseDN, name, surename, domain)
+createUser(username, password, baseDN, name, surename, domain)
